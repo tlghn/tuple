@@ -1,15 +1,16 @@
 {
   "name": "tupl",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A reusable key generator especially for ES6's Map objects",
   "main": "index.js",
   "directories": {
     "test": "tests"
   },
   "dependencies": {
+  },
+  "devDependencies": {
     "chai": "^3.5.0"
   },
-  "devDependencies": {},
   "scripts": {
     "test": "mocha tests --recursive"
   },
