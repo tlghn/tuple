@@ -1,0 +1,33 @@
+{
+  "name": "tupl",
+  "version": "1.0.0",
+  "description": "A reusable key generator especially for ES6's Map objects",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {
+    "chai": "^3.5.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "mocha tests --recursive"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/tlghn/tuple.git"
+  },
+  "keywords": [
+    "tuple",
+    "key-generator",
+    "map",
+    "unique-key",
+    "map-key"
+  ],
+  "author": "Tolgahan Albayrak",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/tlghn/tuple/issues"
+  },
+  "homepage": "https://github.com/tlghn/tuple#readme"
+}
