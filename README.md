@@ -83,6 +83,87 @@ Reusable key generator especially for ES6's Map objects
     let key = tupl('a', 'b', 'c', 'd');
 ```
 
+
+- Event '***destroy***' *(new in 1.2)*
+    Emitted when key is destroyed
+    
+    ```
+    var key = tupl(1, 2, 3);
+    key.root.on('destroy', function (eventTarget) {
+        assert(eventTarget.raw === 1);
+        done();
+    });
+    key.destroy();
+    ```
+    
+- Event '***ref***' *(new in 1.2)*
+    Emitted when key is generated 
+    ```
+    var key = tupl(1, 2, 3);
+    key.parent.on('ref', function (eventTarget) {
+        assert(eventTarget.raw === 2);
+        done();
+        eventTarget.destroy();
+        key.destroy();
+    });
+    tupl(1, 2);
+    ```
+    
+- Event '***descendant***' *(new in 1.2)*
+    Emitted when sub key is generated
+    ```
+    var key = tupl(1, 2);
+    key.root.on('descendant', function (newRef, eventTarget) {
+        assert(newRef.raw === 5);
+        assert(eventTarget.raw === 1);
+        done();
+        key.destroy();
+        newRef.destroy();
+    });
+    
+    tupl(1, 2, 3, 4, 5);
+    ```
+    
+- Event '***ancestor***' *(new in 1.2)*
+    Emitted when one of ancestors is generated
+    ```
+    var key = tupl(1, 2, 3, 4, 5);
+    key.on('ancestor', function (newRef, eventTarget) {
+        assert(newRef.raw === 3);
+        assert(eventTarget.raw === 5);
+        done();
+        eventTarget.destroy();
+        newRef.destroy();
+    });
+
+    tupl(1, 2, 3);
+    ```
+
+- key.***root*** *(new in 1.2)*
+    Returns the root key
+
+- key.***events*** *(new in 1.2)*
+    Returns attached EventEmitter instance
+    
+- key.***on(name, callback)*** *(new in 1.2)*
+    Adds an event listener
+    
+- key.***once(name, callback)*** *(new in 1.2)*
+    Adds an event listener for one time call
+    
+    
+- key.***off(name = undefined, callback = undefined)*** *(new in 1.2)*
+    - if @name and @callback parameters are defined then removes specific listener
+    - if only @name is defined then removes all @name listeners 
+    - if none of both parameters are undefined then removes all attached event listeners
+
+    
+- key.***ancestors()*** *(new in 1.2)*
+    Returns an iterator which iterates the ancestors (parent, parent.parent, ...)
+    
+- key.***descendants()*** *(new in 1.2)*
+    Returns an iterator which iterates the descendants (children(), children().children(), ...)
+
 - key.***parent***
     Returns the parent key. 
     

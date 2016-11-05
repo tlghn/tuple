@@ -6,7 +6,9 @@
 const RAW = Symbol('raw');
 const PARENT = Symbol('parent');
 const REF = Symbol('ref');
+const EVENTS = Symbol('events');
 const CACHE = new Map();
+const EE = require('events');
 
 class Key extends Map {
     constructor(parent, key){
@@ -33,6 +35,13 @@ class Key extends Map {
      */
     _ref(){
         this[REF] = true;
+        this.emit('ref');
+        for(let p of this.ancestors()){
+            p.emit('descendant', this);
+        }
+        for(let c of this.descendants()) {
+            c.emit('ancestor', this);
+        }
         return this;
     }
 
@@ -79,9 +88,12 @@ class Key extends Map {
     }
 
     destroy(){
-        this._unRef().parent.delete(this.raw);
+        this.emit('destroy')
+            .off()
+            ._unRef().parent.delete(this.raw);
         delete this[PARENT];
         delete this[RAW];
+        delete this[EVENTS];
     }
 
     /**
@@ -90,6 +102,84 @@ class Key extends Map {
      */
     get destroyed(){
         return !this[PARENT];
+    }
+
+    get root(){
+        var parent = this.parent;
+        if(!(parent instanceof Key)){
+            return this;
+        }
+        return parent.root;
+    }
+
+    *ancestors() {
+        var parent = this.parent;
+        if(!(parent instanceof Key)){
+            return;
+        }
+        yield parent;
+        for(let grandPa of parent.ancestors()){
+            yield grandPa;
+        }
+    }
+
+    *descendants() {
+        for(let child of this.children()){
+            yield child;
+
+            for(let grandChild of child.descendants()) {
+                yield grandChild;
+            }
+        }
+    }
+
+    /**
+     * @returns EE
+     */
+    get events(){
+        return this[EVENTS] || (this[EVENTS] = new EE());
+    }
+
+    on(name, callback){
+        this.events.on(name, callback);
+        return this;
+    }
+
+    once(name, callback) {
+        this.events.once(name, callback);
+        return this;
+    }
+
+    off(name = void 0, callback = void 0){
+        if(!this[EVENTS]){
+            return this;
+        }
+
+        if(name){
+            if(callback){
+                this.events.removeListener(name, callback);
+            } else {
+                this.events.removeAllListeners(name, callback);
+            }
+        } else {
+            this.events.removeAllListeners();
+        }
+
+        return this;
+    }
+
+    emit() {
+        if(!this[EVENTS]) {
+            return this;
+        }
+
+        var events = this.events;
+        var args = Array.prototype.slice.call(arguments);
+        if(!args.length || args[args.length - 1] !== this){
+            args.push(this);
+        }
+        events.emit.apply(events, args);
+        return this;
     }
 }
 
